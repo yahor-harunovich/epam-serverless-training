@@ -18,8 +18,8 @@ class TestSuccess(HelloWorldLambdaTestCase):
         response = {
             "statusCode": 200,
             "body": json.dumps({
-                "statusCode": "200",
-                "message": "Hello from Lambda"
+                'statusCode': 200,
+                'message': 'Hello from Lambda'
             })
         }
         self.assertEqual(self.HANDLER.handle_request(event, context), response)

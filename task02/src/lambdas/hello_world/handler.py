@@ -22,9 +22,9 @@ class HelloWorld(AbstractLambda):
             return {
                 "statusCode": 200,
                 "body": json.dumps({
-                    "statusCode": "200",
-                    "message": "Hello from Lambda"
-                })  
+                    'statusCode': 200,
+                    'message': 'Hello from Lambda'
+                })
             }
         
     
