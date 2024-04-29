@@ -8,22 +8,7 @@ In this task, you have two roles:
 - Configure proper permissions for the *`${assume_role}`* role, in order to assume the *`${readonly_role}`* role. Do not grant full administrator access!
 
 ```bash
-aws iam update-assume-role-policy --role-name ${assume_role} --policy-document file://trust-policy-assume-role.json
-```
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": "arn:aws:iam::${account_id}:root"
-        },
-        "Action": "sts:AssumeRole"
-      }
-    ]
-}
+aws iam update-assume-role-policy --role-name ${assume_role} --policy-document file://trust-policy-assume-role.json --profile serverless-training
 ```
 
 - Grant full read-only access for the *`${readonly_role}`* role. **Please use existing AWS policy and not create your own.**
@@ -35,20 +20,5 @@ aws iam attach-role-policy --role-name ${readonly_role} --policy-arn arn:aws:iam
 - Configure correct trust policy for the *`${readonly_role}`* role.
 
 ```bash
-aws iam update-assume-role-policy --role-name ${readonly_role} --policy-document file://trust-policy-readonly-role.json
-```
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": "${assume_role}"
-        },
-        "Action": "sts:AssumeRole"
-      }
-    ]
-}
+aws iam update-assume-role-policy --role-name ${readonly_role} --policy-document file://trust-policy-readonly-role.json --profile serverless-training
 ```
