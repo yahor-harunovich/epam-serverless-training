@@ -19,14 +19,14 @@ aws iam create-policy --policy-name ${kms_policy_name} --policy-document file://
 aws iam attach-role-policy --role-name ${iam_role} --policy-arn ${kms_policy_arn} --profile serverless-training
 ```
 
-1. Enable for the `${s3_bucket_2}` bucket server-side encryption using the your AWS KMS key with the `${kms_key_arn}` ARN.
+2. Enable for the `${s3_bucket_2}` bucket server-side encryption using the your AWS KMS key with the `${kms_key_arn}` ARN.
 
 ```bash
 aws s3api put-bucket-encryption --bucket ${s3_bucket_2} --server-side-encryption-configuration file://encryption-config.json --profile serverless-training
 ```
 
 
-1. Check whether you can put a new encrypted object to the encrypted bucket. To do this, you have to copy a *confidential_credentials.csv* file from `${s3_bucket_1}` bucket to `${s3_bucket_2}`. As a result, the copied file *confidential_credentials.csv* should be encrypted.
+3. Check whether you can put a new encrypted object to the encrypted bucket. To do this, you have to copy a *confidential_credentials.csv* file from `${s3_bucket_1}` bucket to `${s3_bucket_2}`. As a result, the copied file *confidential_credentials.csv* should be encrypted.
 
 ```bash
 aws s3 cp s3://${s3_bucket_1}/confidential_credentials.csv s3://${s3_bucket_2}/ --profile serverless-training
