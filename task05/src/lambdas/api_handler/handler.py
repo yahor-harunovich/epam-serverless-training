@@ -34,7 +34,7 @@ class ApiHandler(AbstractLambda):
         }
 
         dynamodb = boto3.resource("dynamodb")
-        table = dynamodb.Table("Events")
+        table = dynamodb.Table("cmtr-c8cf47fa-Events-test")
         table.put_item(Item=event)
 
         response = {
