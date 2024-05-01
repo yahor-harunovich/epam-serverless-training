@@ -1,11 +1,47 @@
-- Grant full access to Amazon S3 service for the `${iam_role}` role. **Please use existing AWS policy and not create your own.**
+# task03
 
-```bash
-aws iam attach-role-policy --role-name ${iam_role} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess --profile serverless-training
+High level project overview - business value it brings, non-detailed technical overview.
+
+### Notice
+All the technical details described below are actual for the particular
+version, or a range of versions of the software.
+### Actual for versions: 1.0.0
+
+## task03 diagram
+
+![task03](pics/task03_diagram.png)
+
+## Lambdas descriptions
+
+### Lambda `lambda-name`
+Lambda feature overview.
+
+### Required configuration
+#### Environment variables
+* environment_variable_name: description
+
+#### Trigger event
+```buildoutcfg
+{
+    "key": "value",
+    "key1": "value1",
+    "key2": "value3"
+}
 ```
+* key: [Required] description of key
+* key1: description of key1
 
-- Update the resource-based S3 bucket policy, which as a result should prohibit the deletion of any objects inside the `${s3_bucket} S3` bucket only for the `${iam_role}` role.
-
-```bash
-aws s3api put-bucket-policy --bucket ${s3_bucket} --policy file://bucket-policy.json --profile serverless-training
+#### Expected response
+```buildoutcfg
+{
+    "status": 200,
+    "message": "Operation succeeded"
+}
 ```
+---
+
+## Deployment from scratch
+1. action 1 to deploy the software
+2. action 2
+...
+
