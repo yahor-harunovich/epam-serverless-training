@@ -19,7 +19,7 @@ class ApiHandler(AbstractLambda):
         # print the content of the API Gateway request
         _LOG.info(event)
     
-        request_body = json.loads(event["body"])
+        request_body = event 
 
         principalId = request_body["principalId"]
         content = request_body["content"]
