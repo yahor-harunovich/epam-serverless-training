@@ -10,7 +10,7 @@
   "lambda_path": "lambdas/audit_producer",
   "dependencies": [
     {
-      "resource_type": "dynamodb_trigger",
+      "resource_type": "dynamodb_table",
       "resource_name": "Configuration"
     }
   ],
