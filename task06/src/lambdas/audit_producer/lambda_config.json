@@ -8,7 +8,12 @@
   "memory": 128,
   "timeout": 100,
   "lambda_path": "lambdas/audit_producer",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "resource_type": "dynamodb_trigger",
+      "resource_name": "Configuration"
+    }
+  ],
   "event_sources": [
     {
 	    "resource_type": "dynamodb_trigger",
@@ -17,7 +22,7 @@
 		}
   ],
   "env_variables": {},
-  "publish_version": true,
+  "publish_version": false,
   "url_config": {},
   "ephemeral_storage": 512,
   "logs_expiration": "${logs_expiration}"
