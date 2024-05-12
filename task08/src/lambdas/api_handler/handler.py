@@ -13,15 +13,20 @@ class OpenMeteoAPI:
 
     def get_weather_forecast(self, latitude: float, longitude: float) -> dict: 
         
-        response = requests.get(
-            url=self.url,
-            params={
-                "latitude": latitude,
-                "longitude": longitude,
-            }
-        )
-        response.raise_for_status()
-        forecast = response.json()
+        try:
+            response = requests.get(
+                url=self.url,
+                params={
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "hourly": ["temperature_2m", "relative_humidity_2m", "wind_speed_10m"]
+                }
+            )
+            response.raise_for_status()
+            forecast = response.json()
+        except Exception as e:
+            _LOG.error(f"Failed to get weather forecast: {e}")
+            raise 
         return forecast
 
 
@@ -38,6 +43,8 @@ class ApiHandler(AbstractLambda):
         """
         Explain incoming event here
         """
+
+        print("Event: ", event)
 
         method = event["requestContext"]["http"]["method"]
         path = event["requestContext"]["http"]["path"]
