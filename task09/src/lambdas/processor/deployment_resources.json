@@ -4,7 +4,8 @@
     "principal_service": "lambda",
     "predefined_policies": [
       "AmazonDynamoDBFullAccess",
-      "AWSLambdaBasicExecutionRole"
+      "AWSLambdaBasicExecutionRole",
+      "AWSXRayDaemonWriteAccess"
     ],
     "custom_policies": [],
     "allowed_accounts": [],

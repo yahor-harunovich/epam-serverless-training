@@ -2,14 +2,16 @@ import decimal
 import json
 import uuid
 
-import boto3
 import requests
+import boto3
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch_all
 
 from commons.log_helper import get_logger
 from commons.abstract_lambda import AbstractLambda
 
 _LOG = get_logger('Processor-handler')
-
+patch_all()
 
 class OpenMeteoAPI:
 
