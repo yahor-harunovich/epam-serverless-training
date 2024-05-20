@@ -12,11 +12,12 @@ from commons.abstract_lambda import AbstractLambda
 
 _LOG = get_logger('ApiHandler-handler')
 PREFIX = "cmtr-c8cf47fa-"
-USER_POOL_NAME = f"{PREFIX}simple-booking-userpool"
+SUFFIX = "-test"
+USER_POOL_NAME = f"{PREFIX}simple-booking-userpool{SUFFIX}"
 USER_POOL_CLIENT_NAME = "simple-booking-client"
 cognito_client = boto3.client("cognito-idp")
-tables_table = boto3.resource("dynamodb").Table(f"{PREFIX}Tables")
-reservations_table = boto3.resource("dynamodb").Table(f"{PREFIX}Reservations")
+tables_table = boto3.resource("dynamodb").Table(f"{PREFIX}Tables{SUFFIX}")
+reservations_table = boto3.resource("dynamodb").Table(f"{PREFIX}Reservations{SUFFIX}")
 
 
 class ApiHandler(AbstractLambda):
