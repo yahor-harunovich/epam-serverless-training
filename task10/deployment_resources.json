@@ -18,7 +18,10 @@
             "cognito-idp:ListUserPools",
             "cognito-idp:ListUserPoolClients",
             "cognito-idp:AdminCreateUser",
-            "cognito-idp:AdminSetUserPassword"
+            "cognito-idp:AdminSetUserPassword",
+            "cognito-idp:GetUser",
+            "cognito-idp:AdminGetUser",
+            "cognito-idp:AdminInitiateAuth"
           ],
           "Effect": "Allow",
           "Resource": "*"
@@ -92,11 +95,12 @@
     },
     "resources": {
       "/signup": {
-        "enable_cors": true,
+        "enable_cors": false,
         "POST": {
           "authorization_type": "NONE",
           "integration_type": "lambda",
           "lambda_name": "api_handler",
+          "enable_proxy": true,
           "api_key_required": false,
           "method_request_parameters": {},
           "integration_request_body_template": {},
@@ -106,11 +110,12 @@
         }
       },
       "/signin": {
-        "enable_cors": true,
+        "enable_cors": false,
         "POST": {
           "authorization_type": "NONE",
           "integration_type": "lambda",
           "lambda_name": "api_handler",
+          "enable_proxy": true,
           "api_key_required": false,
           "method_request_parameters": {},
           "integration_request_body_template": {},
