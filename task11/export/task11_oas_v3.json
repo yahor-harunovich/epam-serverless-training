@@ -307,6 +307,8 @@
     },
     "/tables/{tableId}": {
       "get": {
+        "summary": "Get table by id",
+        "description": "Get table by id",
         "parameters": [
           {
             "name": "tableId",
