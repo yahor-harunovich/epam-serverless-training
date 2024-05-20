@@ -6,9 +6,7 @@
 			"AmazonDynamoDBFullAccess",
 			"AWSLambdaBasicExecutionRole"
 		],
-		"custom_policies": [
-      "cognito-policy"
-		],
+		"custom_policies": [],
 		"allowed_accounts": [],
 		"instance_profile": false,
 		"permissions_boundary": ""

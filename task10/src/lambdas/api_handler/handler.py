@@ -1,3 +1,4 @@
+import decimal
 import json
 import typing as t
 import uuid
@@ -11,6 +12,7 @@ from commons.abstract_lambda import AbstractLambda
 _LOG = get_logger('ApiHandler-handler')
 PREFIX = "cmtr-c8cf47fa-"
 USER_POOL_NAME = f"{PREFIX}simple-booking-userpool"
+USER_POOL_CLIENT_NAME = f"{PREFIX}simple-booking-client"
 cognito_client = boto3.client("cognito-idp")
 tables_table = boto3.resource("dynamodb").Table(f"{PREFIX}Tables")
 reservations_table = boto3.resource("dynamodb").Table(f"{PREFIX}Reservations")
@@ -171,28 +173,42 @@ class ApiHandler(AbstractLambda):
         )
         _LOG.info(f"User pool clients: {response}")
 
-        client_id = response["UserPoolClients"][0]["ClientId"]
+        for client in response["UserPoolClients"]:
+            if client["ClientName"] == USER_POOL_CLIENT_NAME:
+                client_id = client["ClientId"]
+                break
 
         if client_id is None:
             raise ValueError(f"User pool client not found")
 
         return client_id
+
+    def serialize(self, data: t.Any) -> t.Any:
+
+        if isinstance(data, list):
+            return [self.serialize(item) for item in data]
+        elif isinstance(data, dict):
+            return {key: self.serialize(value) for key, value in data.items()}
+        elif isinstance(data, decimal.Decimal):
+            return int(data)
+
+        return data
     
     def signup(self, email: str, first_name: str, last_name: str, password: str) -> None:
         _LOG.info(f"Signing up user: {email}")
 
         user_pool_id = self.get_user_pool_id(USER_POOL_NAME)
 
-        cognito_client.admin_create_user(
+        response = cognito_client.admin_create_user(
             UserPoolId=user_pool_id,
             Username=email,
             UserAttributes=[
                 {
-                    "Name": "firstName",
+                    "Name": "given_name",
                     "Value": first_name 
                 },
                 {
-                    "Name": "lastName",
+                    "Name": "family_name",
                     "Value": last_name 
                 },
                 {
@@ -203,6 +219,15 @@ class ApiHandler(AbstractLambda):
             TemporaryPassword=password,
             MessageAction="SUPPRESS",
         )
+        _LOG.info(f"create user response: {response}")
+
+        response = cognito_client.admin_set_user_password(
+            UserPoolId=user_pool_id,
+            Username=email,
+            Password=password,
+            Permanent=True,
+        )
+        _LOG.info(f"set user password response: {response}")
 
     def signin(self, email: str, password: str) -> str:
         _LOG.info(f"Signing in user: {email}")
@@ -210,10 +235,9 @@ class ApiHandler(AbstractLambda):
         user_pool_id = self.get_user_pool_id(USER_POOL_NAME)
         client_id = self.get_user_pool_client_id(user_pool_id)
 
-        response = cognito_client.admin_initiate_auth(
-            UserPoolId=user_pool_id,
+        response = cognito_client.initiate_auth(
             ClientId=client_id,
-            AuthFlow="ADMIN_USER_PASSWORD_AUTH",
+            AuthFlow="USER_PASSWORD_AUTH",
             AuthParameters={
                 "USERNAME": email,
                 "PASSWORD": password
@@ -226,6 +250,8 @@ class ApiHandler(AbstractLambda):
         _LOG.info("Getting tables")
         response = tables_table.scan()
         tables = response["Items"]
+        tables = self.serialize(tables)
+        tables = sorted(tables, key=lambda table: table["id"])
         return tables
 
     def create_table(
@@ -252,6 +278,7 @@ class ApiHandler(AbstractLambda):
         _LOG.info(f"Getting table: {table_id}")
         response = tables_table.get_item(Key={"id": table_id})
         table = response["Item"]
+        table = self.serialize(table)
         return table
 
     def create_reservation(
@@ -281,6 +308,7 @@ class ApiHandler(AbstractLambda):
         _LOG.info("Getting reservations")
         response = reservations_table.scan()
         reservations = response["Items"]
+        reservations = self.serialize(reservations)
         return reservations
 
 HANDLER = ApiHandler()
