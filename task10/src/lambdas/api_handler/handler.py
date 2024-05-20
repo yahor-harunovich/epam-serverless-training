@@ -12,7 +12,7 @@ from commons.abstract_lambda import AbstractLambda
 _LOG = get_logger('ApiHandler-handler')
 PREFIX = "cmtr-c8cf47fa-"
 USER_POOL_NAME = f"{PREFIX}simple-booking-userpool"
-USER_POOL_CLIENT_NAME = f"{PREFIX}simple-booking-client"
+USER_POOL_CLIENT_NAME = "simple-booking-client"
 cognito_client = boto3.client("cognito-idp")
 tables_table = boto3.resource("dynamodb").Table(f"{PREFIX}Tables")
 reservations_table = boto3.resource("dynamodb").Table(f"{PREFIX}Reservations")
@@ -137,16 +137,6 @@ class ApiHandler(AbstractLambda):
             _LOG.error(f"Failed to handle request: {e}")
             return {"statusCode": 400}
 
-    def validate_access_token(self, access_token: str) -> None:
-        cognito_client.get_user(AccessToken=access_token)    
-
-    def get_access_token(self, event: dict) -> str:
-        return event["headers"]["Authorization"].split(" ")[1]
-
-    def authorize_user(self, event: dict) -> None:
-        access_token = self.get_access_token(event)
-        self.validate_access_token(access_token)
-
     def get_user_pool_id(self, user_pool_name: str) -> str:
 
         user_pool_id = None
@@ -193,9 +183,22 @@ class ApiHandler(AbstractLambda):
             return int(data)
 
         return data
+
+    def validate_email(self, email: str) -> None:
+        
+        if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", email):
+            raise ValueError("Invalid email")
+
+    def validate_password(self, password: str) -> None:
+        
+        if not re.match(r"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^\w\s]).{12,}$", password):
+            raise ValueError("Invalid password")
     
     def signup(self, email: str, first_name: str, last_name: str, password: str) -> None:
         _LOG.info(f"Signing up user: {email}")
+
+        self.validate_email(email)
+        self.validate_password(password)
 
         user_pool_id = self.get_user_pool_id(USER_POOL_NAME)
 
@@ -231,6 +234,9 @@ class ApiHandler(AbstractLambda):
 
     def signin(self, email: str, password: str) -> str:
         _LOG.info(f"Signing in user: {email}")
+
+        self.validate_email(email)
+        self.validate_password(password)
 
         user_pool_id = self.get_user_pool_id(USER_POOL_NAME)
         client_id = self.get_user_pool_client_id(user_pool_id)
