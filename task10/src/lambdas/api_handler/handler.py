@@ -1,3 +1,4 @@
+import datetime
 import decimal
 import json
 import typing as t
@@ -29,7 +30,9 @@ class ApiHandler(AbstractLambda):
         try:
             method = event["requestContext"]["http"]["method"]
             path = event["requestContext"]["http"]["path"]
-            request_body = json.loads(event["body"])
+            request_body = {}
+            if "body" in event:
+                request_body = json.loads(event["body"])
             _LOG.info(f"Method: {method}, Path: {path}, Request body: {request_body}")
 
             if method == "POST" and path == "/signup":
@@ -113,7 +116,7 @@ class ApiHandler(AbstractLambda):
 
                 return {
                     "statusCode": 200,
-                    "body": json.dumps(reservation)
+                    "body": json.dumps({"reservationId": reservation})
                 }
             elif method == "GET" and path == "/reservations":
                 # self.authorize_user(event)
@@ -280,6 +283,24 @@ class ApiHandler(AbstractLambda):
         tables_table.put_item(Item=item)
         return id 
     
+    def is_overlapping(
+        self,
+        start1: str,
+        end1: str, 
+        start2: str,
+        end2: str,
+    ) -> bool:
+
+        start1 = datetime.datetime.strptime(start1, "%H:%M").time()
+        end1= datetime.datetime.strptime(end1, "%H:%M").time()
+        start2 = datetime.datetime.strptime(start2, "%H:%M").time()
+        end2 = datetime.datetime.strptime(end2, "%H:%M").time()
+
+        if start1 <= start2 <= end1 or start1 <= end2 <= end1:
+            return True
+
+        return False
+
     def get_table(self, table_id: int) -> dict:
         _LOG.info(f"Getting table: {table_id}")
         response = tables_table.get_item(Key={"id": table_id})
@@ -297,6 +318,23 @@ class ApiHandler(AbstractLambda):
         slot_time_end: str,
     ) -> str:
         _LOG.info(f"Creating reservation for table: {table_number}")
+
+        response = tables_table.scan() 
+        tables = response["Items"]
+        for table in tables:
+            if table["number"] == table_number:
+                break
+        else:
+            raise ValueError(f"Table {table_number} not found")
+
+        reservations = self.get_reservations()
+        for reservation in reservations:
+            if reservation["tableNumber"] == table_number and reservation["date"] == date:
+                reservation_start = reservation["slotTimeStart"]
+                reservation_end = reservation["slotTimeEnd"]
+                if self.is_overlapping(reservation_start, reservation_end, slot_time_start, slot_time_end):
+                    raise ValueError("Reservation time is overlapping with another reservation")
+
         reservation_id = str(uuid.uuid4())
         item = {
             "id": reservation_id,
