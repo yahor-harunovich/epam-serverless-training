@@ -31,6 +31,8 @@ class ApiHandler(AbstractLambda):
         try:
             method = event["requestContext"]["httpMethod"]
             path = event["requestContext"]["path"]
+            if path.startswith("/api"):
+                path = path.split("/api")[-1]
             request_body = {}
             if "body" in event and event["body"] is not None:
                 request_body = json.loads(event["body"])
